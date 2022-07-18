@@ -82,6 +82,10 @@ next(Problem, C1, C2) :-
     nextto(C1, C2, Problem);
     nextto(C2, C1, Problem).
 
+client_between(Problem, C1, C2, C3) :-
+    left(Problem, C1, C2, false),
+    right(Problem, C3, C2, false).
+
 % Resolução -------------------------------------------------------------------
 
 main(Problem) :-
@@ -91,5 +95,23 @@ main(Problem) :-
                client(B3, G3, S3, N3, P3, F3),
                client(B4, G4, S4, N4, P4, F4),
                client(B5, G5, S5, N5, P5, F5)],
+
+    % A mulher que vai Tingir os cabelos está exatamente à esquerda da Cláudia
+    left(Problem, client(_, _, _, _, _, tingir), client(_, _, _, claudia, _, _), true),
+
+    % A moça que está no meio vai Alisar os cabelos
+    position(Problem, client(_, _, _, _, _, alisar), 2),
+
+    % Quem vai Cortar os cabelos está em algum lugar entre a Fluminense e a que tem a bolsa Vermelha, que está à
+    % direita
+    client_between(Problem,
+                   client(_, fluminense, _, _, _, _),
+                   client(_, _, _, _, _, cortar),
+                   client(vermelho, _, _, _, _, _)),
+
+    % Quem vai fazer Maquiagem está na primeira cadeira
+    position(Problem, client(_, _, _, _, _, maquiagem), 0),
+
+    % A Paulista está sentada exatamente à esquerda da Publicitária
 
     halt.
