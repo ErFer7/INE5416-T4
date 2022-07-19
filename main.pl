@@ -35,7 +35,7 @@ nome(tina).
 nome(vivian).
 
 % Definições das profissões
-profissao(avogada).
+profissao(advogada).
 profissao(cozinheira).
 profissao(dentista).
 profissao(publicitaria).
@@ -48,43 +48,114 @@ fazer(maquiagem).
 fazer(manicure).
 fazer(tingir).
 
+% Definição de cliente
+client(bolsa, gentilico, suco, nome, profissao, fazer).
+
 % Posicionamento --------------------------------------------------------------
+direction(Problem, C1, C2, Immediate, Direction) :-
+    nth0(I1, Problem, C1),
+    nth0(I2, Problem, C2),
+    (   Direction == left
+    ->  Ic is I2 - 1,
+        (   Immediate
+        ->  I1 == Ic
+        ;   I1 =< Ic
+        )
+    ;   direction(Problem, C2, C1, Immediate, left)
+    ).
 
 left(Problem, C1, C2, Immediate) :-
-    nth0(I1, Problem, C1),
-    nth0(I2, Problem, C2),
-    Ic is I2 - 1,
-    (   Immediate == true
-    ->  I1 == Ic
-    ;   I1 =< Ic
-    ).
+    direction(Problem, C1, C2, Immediate, left).
 
 right(Problem, C1, C2, Immediate) :-
-    nth0(I1, Problem, C1),
-    nth0(I2, Problem, C2),
-    Ic is I2 + 1,
-    (   Immediate == true
-    ->  I1 == Ic
-    ;   I1 >= Ic
-    ).
+    direction(Problem, C1, C2, Immediate, right).
 
 position(Problem, C, It) :-
     nth0(I, Problem, C),
     I == It.
 
-first_or_last([H|_], C) :-
-    C == H;
-    last([H|_], C).
+first_or_last([C|_], C).
+first_or_last([_,_|C], C).
 
 next(Problem, C1, C2) :-
-    nextto(C1, C2, Problem);
-    nextto(C2, C1, Problem).
+    left(Problem, C1, C2, true);
+    right(Problem, C1, C2, true).
 
 client_between(Problem, C1, C2, C3) :-
     left(Problem, C1, C2, false),
     right(Problem, C3, C2, false).
 
+% Checagem de unicidade -------------------------------------------------------
+
+all_diff([]).
+all_diff([_,[]]).
+all_diff([H|T]) :-
+    not(member(H, T)),
+    all_diff(T).
+
 % Resolução -------------------------------------------------------------------
+
+test :-
+
+    TestList = [client(vermelho, gaucha, laranja, ana, dentista, cortar),
+                client(branco, gaucha, laranja, ana, dentista, cortar),
+                client(verde, gaucha, laranja, ana, dentista, cortar),
+                client(amarelo, gaucha, laranja, ana, dentista, cortar),
+                client(azul, gaucha, laranja, ana, dentista, cortar)],
+
+    left(TestList,
+         client(vermelho, gaucha, laranja, ana, dentista, cortar),
+         client(verde, gaucha, laranja, ana, dentista, cortar),
+         false),
+
+    right(TestList,
+          client(azul, gaucha, laranja, ana, dentista, cortar),
+          client(verde, gaucha, laranja, ana, dentista, cortar),
+          false),
+
+    left(TestList,
+         client(branco, gaucha, laranja, ana, dentista, cortar),
+         client(verde, gaucha, laranja, ana, dentista, cortar),
+         true),
+   
+    right(TestList,
+          client(amarelo, gaucha, laranja, ana, dentista, cortar),
+          client(verde, gaucha, laranja, ana, dentista, cortar),
+          true),
+
+    position(TestList, client(vermelho, gaucha, laranja, ana, dentista, cortar), 0),
+    position(TestList, client(branco, gaucha, laranja, ana, dentista, cortar), 1),
+    position(TestList, client(verde, gaucha, laranja, ana, dentista, cortar), 2),
+    position(TestList, client(amarelo, gaucha, laranja, ana, dentista, cortar), 3),
+    position(TestList, client(azul, gaucha, laranja, ana, dentista, cortar), 4),
+
+    first_or_last(TestList, client(vermelho, gaucha, laranja, ana, dentista, cortar)),
+    not(first_or_last(TestList, client(branco, gaucha, laranja, ana, dentista, cortar))),
+    not(first_or_last(TestList, client(verde, gaucha, laranja, ana, dentista, cortar))),
+    not(first_or_last(TestList, client(amarelo, gaucha, laranja, ana, dentista, cortar))),
+    first_or_last(TestList, client(azul, gaucha, laranja, ana, dentista, cortar)),
+
+    next(TestList,
+         client(vermelho, gaucha, laranja, ana, dentista, cortar),
+         client(branco, gaucha, laranja, ana, dentista, cortar)),
+
+    next(TestList,
+         client(verde, gaucha, laranja, ana, dentista, cortar),
+         client(branco, gaucha, laranja, ana, dentista, cortar)),
+
+    not(next(TestList,
+             client(azul, gaucha, laranja, ana, dentista, cortar),
+             client(vermelho, gaucha, laranja, ana, dentista, cortar))),
+
+    client_between(TestList,
+         client(vermelho, gaucha, laranja, ana, dentista, cortar),
+         client(verde, gaucha, laranja, ana, dentista, cortar),
+         client(azul, gaucha, laranja, ana, dentista, cortar)),
+
+    client_between(TestList,
+        client(branco, gaucha, laranja, ana, dentista, cortar),
+        client(verde, gaucha, laranja, ana, dentista, cortar),
+        client(amarelo, gaucha, laranja, ana, dentista, cortar)).
 
 main(Problem) :-
 
@@ -119,7 +190,7 @@ main(Problem) :-
     member(client(_, _, _, mariana, tradutora, _), Problem),
 
     % A Dentista está sentada na quarta cadeira
-    position(Problem, client(_, _, _, _, dentista, _), 1),
+    position(Problem, client(_, _, _, _, dentista, _), 3),
 
     % A Cozinheira está sentada ao lado da Mineira
     next(Problem, client(_, _, _, _, cozinheira, _), client(_, mineira, _, _, _, _)),
@@ -162,7 +233,7 @@ main(Problem) :-
     bolsa(B4),
     bolsa(B5),
 
-    all_distinct([B1, B2, B3, B4, B5]),
+    all_diff([B1, B2, B3, B4, B5]),
 
     gentilico(G1),
     gentilico(G2),
@@ -170,7 +241,7 @@ main(Problem) :-
     gentilico(G4),
     gentilico(G5),
 
-    all_distinct([G1, G2, G3, G4, G5]),
+    all_diff([G1, G2, G3, G4, G5]),
 
     suco(S1),
     suco(S2),
@@ -178,7 +249,7 @@ main(Problem) :-
     suco(S4),
     suco(S5),
 
-    all_distinct([S1, S2, S3, S4, S5]),
+    all_diff([S1, S2, S3, S4, S5]),
 
     nome(N1),
     nome(N2),
@@ -186,7 +257,7 @@ main(Problem) :-
     nome(N4),
     nome(N5),
 
-    all_distinct([N1, N2, N3, N4, N5]),
+    all_diff([N1, N2, N3, N4, N5]),
 
     profissao(P1),
     profissao(P2),
@@ -194,7 +265,7 @@ main(Problem) :-
     profissao(P4),
     profissao(P5),
 
-    all_distinct([P1, P2, P3, P4, P5]),
+    all_diff([P1, P2, P3, P4, P5]),
 
     fazer(F1),
     fazer(F2),
@@ -202,4 +273,4 @@ main(Problem) :-
     fazer(F4),
     fazer(F5),
 
-    all_distinct([F1, F2, F3, F4, F5]).
+    all_diff([F1, F2, F3, F4, F5]).
