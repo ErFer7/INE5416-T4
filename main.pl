@@ -95,68 +95,6 @@ all_diff([H|T]) :-
 
 % Resolução -------------------------------------------------------------------
 
-test :-
-
-    TestList = [client(vermelho, gaucha, laranja, ana, dentista, cortar),
-                client(branco, gaucha, laranja, ana, dentista, cortar),
-                client(verde, gaucha, laranja, ana, dentista, cortar),
-                client(amarelo, gaucha, laranja, ana, dentista, cortar),
-                client(azul, gaucha, laranja, ana, dentista, cortar)],
-
-    left(TestList,
-         client(vermelho, gaucha, laranja, ana, dentista, cortar),
-         client(verde, gaucha, laranja, ana, dentista, cortar),
-         false),
-
-    right(TestList,
-          client(azul, gaucha, laranja, ana, dentista, cortar),
-          client(verde, gaucha, laranja, ana, dentista, cortar),
-          false),
-
-    left(TestList,
-         client(branco, gaucha, laranja, ana, dentista, cortar),
-         client(verde, gaucha, laranja, ana, dentista, cortar),
-         true),
-   
-    right(TestList,
-          client(amarelo, gaucha, laranja, ana, dentista, cortar),
-          client(verde, gaucha, laranja, ana, dentista, cortar),
-          true),
-
-    position(TestList, client(vermelho, gaucha, laranja, ana, dentista, cortar), 0),
-    position(TestList, client(branco, gaucha, laranja, ana, dentista, cortar), 1),
-    position(TestList, client(verde, gaucha, laranja, ana, dentista, cortar), 2),
-    position(TestList, client(amarelo, gaucha, laranja, ana, dentista, cortar), 3),
-    position(TestList, client(azul, gaucha, laranja, ana, dentista, cortar), 4),
-
-    first_or_last(TestList, client(vermelho, gaucha, laranja, ana, dentista, cortar)),
-    not(first_or_last(TestList, client(branco, gaucha, laranja, ana, dentista, cortar))),
-    not(first_or_last(TestList, client(verde, gaucha, laranja, ana, dentista, cortar))),
-    not(first_or_last(TestList, client(amarelo, gaucha, laranja, ana, dentista, cortar))),
-    first_or_last(TestList, client(azul, gaucha, laranja, ana, dentista, cortar)),
-
-    next(TestList,
-         client(vermelho, gaucha, laranja, ana, dentista, cortar),
-         client(branco, gaucha, laranja, ana, dentista, cortar)),
-
-    next(TestList,
-         client(verde, gaucha, laranja, ana, dentista, cortar),
-         client(branco, gaucha, laranja, ana, dentista, cortar)),
-
-    not(next(TestList,
-             client(azul, gaucha, laranja, ana, dentista, cortar),
-             client(vermelho, gaucha, laranja, ana, dentista, cortar))),
-
-    client_between(TestList,
-         client(vermelho, gaucha, laranja, ana, dentista, cortar),
-         client(verde, gaucha, laranja, ana, dentista, cortar),
-         client(azul, gaucha, laranja, ana, dentista, cortar)),
-
-    client_between(TestList,
-        client(branco, gaucha, laranja, ana, dentista, cortar),
-        client(verde, gaucha, laranja, ana, dentista, cortar),
-        client(amarelo, gaucha, laranja, ana, dentista, cortar)).
-
 main(Problem) :-
 
     % Lista que representa o problema
