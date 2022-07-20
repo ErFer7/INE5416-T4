@@ -11,42 +11,36 @@
     gentílicos, etc.
 */
 
-% Definições das cores das bolsas
 bolsa(amarelo).
 bolsa(azul).
 bolsa(branco).
 bolsa(verde).
 bolsa(vermelho).
 
-% Definições dos gentílicos
 gentilico(gaucha).
 gentilico(baiana).
 gentilico(fluminense).
 gentilico(mineira).
 gentilico(paulista).
 
-% Definições dos sucos
 suco(abacaxi).
 suco(laranja).
 suco(limao).
 suco(maracuja).
 suco(morango).
 
-% Definições dos sucos
 nome(ana).
 nome(claudia).
 nome(mariana).
 nome(tina).
 nome(vivian).
 
-% Definições das profissões
 profissao(advogada).
 profissao(cozinheira).
 profissao(dentista).
 profissao(publicitaria).
 profissao(tradutora).
 
-% Definições do que está sendo feito
 fazer(alisar).
 fazer(cortar).
 fazer(maquiagem).
@@ -62,37 +56,37 @@ fazer(tingir).
 % Posicionamento à esquerda. Define que C1 está à esquerda de C2, caso Immediate seja verdadeiro faz a verificação
 % exata
 left(Problem, C1, C2, Immediate) :-
-    nth0(I1, Problem, C1),  % Obtém o índice I1 da primeira cliente
-    nth0(I2, Problem, C2),  % Obtém o índice I2 da segunda cliente
-    Ic is I2 - 1,           % Indice de comparação é o índice à esquerda da segunda cliente
-    (   Immediate           % Verificação do argumento para a verificação de posicionamento exatamente à esquerda
-    ->  I1 == Ic            % Verifica se a cliente C1 esteja exatamente à esquerda da cliente C2
-    ;   I1 =< Ic            % Verifica se a cliente C1 está à esquerda da cliente C2
+    nth0(I1, Problem, C1),
+    nth0(I2, Problem, C2),
+    Ic is I2 - 1,
+    (   Immediate
+    ->  I1 == Ic
+    ;   I1 =< Ic
     ).
 
 % Posicionamento à direita. Define que C1 está à direita de C2, caso Immediate seja verdadeiro faz a verificação
-% exata
+% exata. A verificação inverte o caso e verifica se C2 está a esquerda de C1
 right(Problem, C1, C2, Immediate) :-
-    left(Problem, C2, C1, Immediate).  % A verificação inverte o caso e verifica se C2 está a esquerda de C1
+    left(Problem, C2, C1, Immediate).
 
 % Define que a cliente C está na posição de índice It
 position(Problem, C, It) :-
-    nth0(I, Problem, C),  % Obtém o índice I
-    I == It.              % Verifica se o índice fornecido é o mesmo da cliente
+    nth0(I, Problem, C),
+    I == It.
 
 % Define que a cliente C está em um dos cantos
-first_or_last([C|_], C).     % Regra para a cliente C no início da lista
-first_or_last([_, _|C], C).  % Regra para a cliente C no fim da lista
+first_or_last([C|_], C).     % C no início
+first_or_last([_, _|C], C).  % C no fim
 
 % Define que a cliente C1 está ao lado da cliente C2
 next(Problem, C1, C2) :-
-    left(Problem, C1, C2, true);   % C1 exatamente à esquerda de C2
-    right(Problem, C1, C2, true).  % C1 exatamente à direita de C2
+    left(Problem, C1, C2, true);
+    right(Problem, C1, C2, true).
 
 % Define que a cliente C2 está entre C1 e C3
 client_between(Problem, C1, C2, C3) :-
-    left(Problem, C1, C2, false),   % C1 à esquerda de C2
-    right(Problem, C3, C2, false).  % C3 à direita de C2
+    left(Problem, C1, C2, false),
+    right(Problem, C3, C2, false).
 
 % Checagem de unicidade ---------------------------------------
 
@@ -100,10 +94,9 @@ client_between(Problem, C1, C2, C3) :-
     garante que todos os elementos em uma lista são diferentes.
 */
 
-% Define que que todos os elementos da lista são diferentes
-all_diff([]).  % Caso base da recursão
+all_diff([]).
 all_diff([H|T]) :-
-    not(member(H, T)),  % H não é membro da calda da lista
+    not(member(H, T)),
     all_diff(T).
 
 % Resolução ---------------------------------------------------
@@ -114,10 +107,8 @@ all_diff([H|T]) :-
     define que todas as variáveis devem ser diferentes também é chamado nesta etapa.
 */
 
-% Solução que resolve a lista 'Problem'
 solution(Problem) :-
 
-    % Lista que representa o problema
     Problem = [client(B1, G1, S1, N1, P1, F1),
                client(B2, G2, S2, N2, P2, F2),
                client(B3, G3, S3, N3, P3, F3),
