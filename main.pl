@@ -5,7 +5,12 @@
 
 :- use_module(library(clpfd)).
 
-% Fatos -----------------------------------------------------------------------
+% Fatos -------------------------------------------------------
+
+/*  Primeiramente os fatos são definidos, com isso são delimitados os valores que pode ser assumidos pelas bolsas,
+    gentílicos, etc.
+*/
+
 % Definições das cores das bolsas
 bolsa(amarelo).
 bolsa(azul).
@@ -48,54 +53,69 @@ fazer(maquiagem).
 fazer(manicure).
 fazer(tingir).
 
-% Definição de cliente
-client(bolsa, gentilico, suco, nome, profissao, fazer).
+% Posicionamento ----------------------------------------------
 
-% Posicionamento --------------------------------------------------------------
-direction(Problem, C1, C2, Immediate, Direction) :-
-    nth0(I1, Problem, C1),
-    nth0(I2, Problem, C2),
-    (   Direction == left
-    ->  Ic is I2 - 1,
-        (   Immediate
-        ->  I1 == Ic
-        ;   I1 =< Ic
-        )
-    ;   direction(Problem, C2, C1, Immediate, left)
+/*  O problema depende das relações de posicionamento de cada uma das clientes nas cadeiras, sendo assim foram
+    definidos alguns predicados para as regras de poisicionamento.
+*/
+
+% Posicionamento à esquerda. Define que C1 está à esquerda de C2, caso Immediate seja verdadeiro faz a verificação
+% exata
+left(Problem, C1, C2, Immediate) :-
+    nth0(I1, Problem, C1),  % Obtém o índice I1 da primeira cliente
+    nth0(I2, Problem, C2),  % Obtém o índice I2 da segunda cliente
+    Ic is I2 - 1,           % Indice de comparação é o índice à esquerda da segunda cliente
+    (   Immediate           % Verificação do argumento para a verificação de posicionamento exatamente à esquerda
+    ->  I1 == Ic            % Verifica se a cliente C1 esteja exatamente à esquerda da cliente C2
+    ;   I1 =< Ic            % Verifica se a cliente C1 está à esquerda da cliente C2
     ).
 
-left(Problem, C1, C2, Immediate) :-
-    direction(Problem, C1, C2, Immediate, left).
-
+% Posicionamento à direita. Define que C1 está à direita de C2, caso Immediate seja verdadeiro faz a verificação
+% exata
 right(Problem, C1, C2, Immediate) :-
-    direction(Problem, C1, C2, Immediate, right).
+    left(Problem, C2, C1, Immediate).  % A verificação inverte o caso e verifica se C2 está a esquerda de C1
 
+% Define que a cliente C está na posição de índice It
 position(Problem, C, It) :-
-    nth0(I, Problem, C),
-    I == It.
+    nth0(I, Problem, C),  % Obtém o índice I
+    I == It.              % Verifica se o índice fornecido é o mesmo da cliente
 
-first_or_last([C|_], C).
-first_or_last([_,_|C], C).
+% Define que a cliente C está em um dos cantos
+first_or_last([C|_], C).     % Regra para a cliente C no início da lista
+first_or_last([_, _|C], C).  % Regra para a cliente C no fim da lista
 
+% Define que a cliente C1 está ao lado da cliente C2
 next(Problem, C1, C2) :-
-    left(Problem, C1, C2, true);
-    right(Problem, C1, C2, true).
+    left(Problem, C1, C2, true);   % C1 exatamente à esquerda de C2
+    right(Problem, C1, C2, true).  % C1 exatamente à direita de C2
 
+% Define que a cliente C2 está entre C1 e C3
 client_between(Problem, C1, C2, C3) :-
-    left(Problem, C1, C2, false),
-    right(Problem, C3, C2, false).
+    left(Problem, C1, C2, false),   % C1 à esquerda de C2
+    right(Problem, C3, C2, false).  % C3 à direita de C2
 
-% Checagem de unicidade -------------------------------------------------------
+% Checagem de unicidade ---------------------------------------
 
-all_diff([]).
-all_diff([_,[]]).
+/*  O problema exige que as combinações não tenham repetições de características, sendo assim há um predicado que
+    garante que todos os elementos em uma lista são diferentes.
+*/
+
+% Define que que todos os elementos da lista são diferentes
+all_diff([]).  % Caso base da recursão
 all_diff([H|T]) :-
-    not(member(H, T)),
+    not(member(H, T)),  % H não é membro da calda da lista
     all_diff(T).
 
-% Resolução -------------------------------------------------------------------
+% Resolução ---------------------------------------------------
 
-main(Problem) :-
+/*  Na solução uma lista é usada para definir o problema, as características são definidas como variáveis. Todas as
+    regras são definidas subsequentemente, com as regras definidas são chamados os predicados com os fatos sobre as
+    variáveis, garantindo que as variáveis irão pertencer ao domínio de soluções verdadeiras. O predicado que
+    define que todas as variáveis devem ser diferentes também é chamado nesta etapa.
+*/
+
+% Solução que resolve a lista 'Problem'
+solution(Problem) :-
 
     % Lista que representa o problema
     Problem = [client(B1, G1, S1, N1, P1, F1),
@@ -104,7 +124,7 @@ main(Problem) :-
                client(B4, G4, S4, N4, P4, F4),
                client(B5, G5, S5, N5, P5, F5)],
 
-    % Regras
+    % Regras:
     % A mulher que vai Tingir os cabelos está exatamente à esquerda da Cláudia
     left(Problem, client(_, _, _, _, _, tingir), client(_, _, _, claudia, _, _), true),
 
@@ -163,7 +183,7 @@ main(Problem) :-
     % A dona da bolsa Amarela está sentada exatamente à esquerda da dona da bolsa Branca
     left(Problem, client(amarelo, _, _, _, _, _), client(branco, _, _, _, _, _), true),
 
-    % Teste de possibilidades
+    % Pertencimento e unicidade. Todas as variáveis devem ter valores que estão dentro do domínio da solução
 
     bolsa(B1),
     bolsa(B2),
@@ -171,6 +191,7 @@ main(Problem) :-
     bolsa(B4),
     bolsa(B5),
 
+    % Verificação de unicidade dos valores, essecialmente o processo é o mesmo para todas as verificações abaixo
     all_diff([B1, B2, B3, B4, B5]),
 
     gentilico(G1),
